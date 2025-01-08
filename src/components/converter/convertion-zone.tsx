@@ -18,6 +18,7 @@ import { ProgressIndicator } from "./progress-indicator";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { ConversionStatus } from "@/types";
+import { convertMedia } from "@/lib/media-converter";
 
 interface DetectedFile {
   file: File;
@@ -75,12 +76,18 @@ export function ConversionZone() {
     setConvertedUrl(null);
 
     try {
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setProgress(i);
-      }
+      if (!detectedFile) return;
 
-      setConvertedUrl(detectedFile?.preview || null);
+      const convertedBlob = await convertMedia(
+        detectedFile.file,
+        conversionSettings,
+        (progress: number) => {
+          setProgress(Math.round(progress));
+        }
+      );
+
+      const url = URL.createObjectURL(convertedBlob);
+      setConvertedUrl(url);
       setStatus("done");
       toast({
         title: "Conversion Complete! 🎉",
@@ -107,6 +114,39 @@ export function ConversionZone() {
     setStatus("idle");
     setProgress(0);
     setConvertedUrl(null);
+  };
+
+  const handleDownload = () => {
+    if (!convertedUrl) {
+      toast({
+        title: "Download Failed",
+        description: "Converted file not found. Please try converting again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const link = document.createElement("a");
+      link.href = convertedUrl;
+      const extension = conversionSettings.format;
+      const originalName = detectedFile?.file.name;
+      const baseName =
+        originalName?.split(".").slice(0, -1).join(".") || "converted";
+      link.download = `${baseName}.${extension}`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download Failed",
+        description:
+          "There was an error downloading your file. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -215,9 +255,7 @@ export function ConversionZone() {
                     {status === "done" ? (
                       <>
                         <Button
-                          onClick={() => {
-                            // Add download logic here
-                          }}
+                          onClick={handleDownload}
                           className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 w-full sm:w-auto"
                         >
                           <Download className="w-4 h-4" />

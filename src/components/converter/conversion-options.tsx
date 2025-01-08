@@ -9,20 +9,14 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Settings2,
-  Video,
-  Image as ImageIcon,
-  Sparkles,
-  Gauge,
-  Frame,
-} from "lucide-react";
+import { Sparkles, Gauge, Frame } from "lucide-react";
+import { useState } from "react";
 
 interface ConversionOptionsProps {
   type: "video" | "image";
   onOptionsChange: (options: unknown) => void;
   defaultValues: {
-    format: string;
+    format?: string;
     quality: number;
     preserveAudio?: boolean;
     resolution?: string;
@@ -42,6 +36,11 @@ const formatOptions = {
     { value: "jpg", label: "JPG", description: "Smaller Size" },
     { value: "avif", label: "AVIF", description: "Next-Gen" },
   ],
+};
+
+const defaultFormats = {
+  video: "mp4",
+  image: "webp",
 };
 
 export function ConversionOptions({
@@ -78,6 +77,7 @@ export function ConversionOptions({
   const QualityControl = () => {
     const qualityInfo = getQualityInfo(defaultValues.quality);
     const QualityIcon = qualityInfo.icon;
+    const [localQuality, setLocalQuality] = useState(defaultValues.quality);
 
     return (
       <div className="space-y-2">
@@ -85,9 +85,7 @@ export function ConversionOptions({
           <Label className="text-sm font-medium">Quality</Label>
           <div className="flex items-center gap-2">
             <QualityIcon className={`w-4 h-4 ${qualityInfo.color}`} />
-            <span className="text-sm font-medium">
-              {defaultValues.quality}%
-            </span>
+            <span className="text-sm font-medium">{localQuality}%</span>
           </div>
         </div>
         <Slider
@@ -95,7 +93,8 @@ export function ConversionOptions({
           max={100}
           step={5}
           className="py-4"
-          onValueChange={([value]) => onOptionsChange({ quality: value })}
+          onValueChange={([value]) => setLocalQuality(value)}
+          onValueCommit={([value]) => onOptionsChange({ quality: value })}
         />
         <p className="text-sm text-muted-foreground flex items-center gap-2">
           {qualityInfo.text}
@@ -108,7 +107,7 @@ export function ConversionOptions({
     <div className="space-y-2">
       <Label className="text-sm font-medium">Output Format</Label>
       <Select
-        defaultValue={defaultValues.format}
+        defaultValue={defaultValues.format || defaultFormats[type]}
         onValueChange={(value) => onOptionsChange({ format: value })}
       >
         <SelectTrigger className="w-full">

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "wasm-build": "cd rust && wasm-pack build --target web --out-dir ../src/wasm",
+    "dev": "npm run wasm-build && next dev --turbopack",
+    "build": "npm run wasm-build  && next build",
+    "start": "npm run wasm-build  && next start",
     "lint": "next lint"
   },
   "dependencies": {
