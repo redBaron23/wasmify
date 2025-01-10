@@ -34,7 +34,8 @@ const formatOptions = {
     { value: "webp", label: "WebP", description: "Recommended" },
     { value: "png", label: "PNG", description: "Lossless" },
     { value: "jpg", label: "JPG", description: "Smaller Size" },
-    { value: "avif", label: "AVIF", description: "Next-Gen" },
+    { value: "gif", label: "GIF", description: "Animations" },
+    // { value: "avif", label: "AVIF", description: "Next-Gen" },
   ],
 };
 
