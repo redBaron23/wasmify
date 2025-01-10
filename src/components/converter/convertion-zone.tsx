@@ -238,7 +238,7 @@ export function ConversionZone() {
                   <div className="flex items-center gap-2 pb-2 border-b">
                     <Settings2 className="w-5 h-5 text-gray-500" />
                     <h3 className="font-medium text-sm sm:text-base">
-                      Conversion Settings
+                      Conversion Settings 2
                     </h3>
                   </div>
 
