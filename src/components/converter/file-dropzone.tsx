@@ -31,10 +31,10 @@ export function FileDropzone({
       <input {...getInputProps()} />
       <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
       <p className="mt-2 text-muted-foreground">
-        Drop your image or video file here, or click to select
+        Drop your image file here, or click to select
       </p>
       <p className="text-sm text-muted-foreground/75 mt-1">
-        Supports JPG, PNG, WebP, MP4, WebM, and MOV
+        Supports JPG, PNG, WebP, and GIF
       </p>
     </div>
   );

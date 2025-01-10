@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   ImageIcon,
-  FileVideo,
   ArrowRight,
   RotateCcw,
   Download,
@@ -19,6 +18,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { ConversionStatus } from "@/types";
 import { convertMedia } from "@/lib/media-converter";
+import Image from "next/image";
+
+const SUPPORTED_FORMATS = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/gif",
+];
+
+interface DetectedFile {
+  file: File;
+  type: "video" | "image";
+  preview?: string;
+}
 
 interface DetectedFile {
   file: File;
@@ -54,18 +67,23 @@ export function ConversionZone() {
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
   const [conversionSettings, setConversionSettings] =
     useState<ConversionSettings>({
-      format: "mp4",
+      format: "jpg",
       quality: 80,
-      preserveAudio: true,
-      resolution: "1080p",
-      fps: 30,
     });
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
-    const type = file.type.startsWith("video/") ? "video" : "image";
+    if (!SUPPORTED_FORMATS.includes(file.type)) {
+      toast({
+        title: "Unsupported File Type",
+        description: "Please select a PNG, JPEG, WebP, or GIF file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const preview = URL.createObjectURL(file);
-    setDetectedFile({ file, type, preview });
+    setDetectedFile({ file, type: "image", preview });
     setStatus("idle");
     setProgress(0);
     setConvertedUrl(null);
@@ -162,8 +180,10 @@ export function ConversionZone() {
             <FileDropzone
               onFileSelect={handleFileSelect}
               accept={{
-                "image/*": [],
-                "video/*": [],
+                "image/png": [],
+                "image/jpeg": [],
+                "image/webp": [],
+                "image/gif": [],
               }}
             />
           </motion.div>
@@ -176,38 +196,26 @@ export function ConversionZone() {
           >
             <Card className="overflow-hidden">
               <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 p-4 sm:p-6">
-                {/* File Preview Section */}
                 <motion.div
                   className="space-y-4 w-full"
                   variants={previewVariants}
                   initial="hidden"
                   animate="show"
                 >
-                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg overflow-hidden shadow-inner">
-                    {detectedFile.type === "video" ? (
-                      <video
-                        src={detectedFile.preview}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : (
-                      <img
-                        src={detectedFile.preview}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg overflow-hidden shadow-inner relative">
+                    <Image
+                      src={detectedFile.preview || ""}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                      unoptimized // Since we're using blob URLs
+                      priority // Important for LCP
+                    />
                   </div>
                   <div className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
-                    {detectedFile.type === "video" ? (
-                      <div className="p-2 bg-blue-50 dark:bg-blue-900/50 rounded-lg">
-                        <FileVideo className="w-5 h-5 text-blue-500" />
-                      </div>
-                    ) : (
-                      <div className="p-2 bg-purple-50 dark:bg-purple-900/50 rounded-lg">
-                        <ImageIcon className="w-5 h-5 text-purple-500" />
-                      </div>
-                    )}
+                    <div className="p-2 bg-purple-50 dark:bg-purple-900/50 rounded-lg">
+                      <ImageIcon className="w-5 h-5 text-purple-500" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate text-sm sm:text-base">
                         {detectedFile.file.name}
@@ -217,7 +225,7 @@ export function ConversionZone() {
                           variant="secondary"
                           className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs sm:text-sm"
                         >
-                          {detectedFile.type === "video" ? "Video" : "Image"}
+                          Image
                         </Badge>
                         <span className="text-xs sm:text-sm text-muted-foreground">
                           {(detectedFile.file.size / 1024 / 1024).toFixed(2)}MB
@@ -226,8 +234,6 @@ export function ConversionZone() {
                     </div>
                   </div>
                 </motion.div>
-
-                {/* Conversion Options Section */}
                 <div className="space-y-4 sm:space-y-6 w-full">
                   <div className="flex items-center gap-2 pb-2 border-b">
                     <Settings2 className="w-5 h-5 text-gray-500" />
@@ -237,14 +243,19 @@ export function ConversionZone() {
                   </div>
 
                   <ConversionOptions
-                    type={detectedFile.type}
+                    type="image"
                     onOptionsChange={(newSettings) =>
                       setConversionSettings({
                         ...conversionSettings,
-                        ...(newSettings as ConversionSettings),
+                        ...newSettings,
                       })
                     }
                     defaultValues={conversionSettings}
+                    isSelectDisabled={
+                      status === "done" ||
+                      status === "converting" ||
+                      status === "preparing"
+                    }
                   />
 
                   {status !== "idle" && (

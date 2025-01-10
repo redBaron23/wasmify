@@ -9,7 +9,7 @@ const features = [
   {
     icon: Zap,
     title: "Lightning Fast",
-    description: "Convert files at native speed with WebAssembly technology",
+    description: "Convert images at native speed with WebAssembly technology",
     color: "from-yellow-500 to-orange-500",
   },
   {
@@ -21,7 +21,7 @@ const features = [
   {
     icon: FileType,
     title: "Multiple Formats",
-    description: "Support for popular video and image formats",
+    description: "Support for PNG, JPEG, WebP, and GIF formats",
     color: "from-purple-500 to-pink-500",
   },
 ];
@@ -71,10 +71,10 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-            Convert your files with WebAssembly
+            Convert your images with WebAssembly
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Fast, secure, and efficient media conversion powered by Rust and
+            Fast, secure, and efficient image conversion powered by Rust and
             WebAssembly
           </p>
           <div className="flex items-center justify-center gap-4 pt-4">

@@ -14,7 +14,7 @@ import { useState } from "react";
 
 interface ConversionOptionsProps {
   type: "video" | "image";
-  onOptionsChange: (options: unknown) => void;
+  onOptionsChange: (options: object) => void;
   defaultValues: {
     format?: string;
     quality: number;
@@ -22,6 +22,7 @@ interface ConversionOptionsProps {
     resolution?: string;
     fps?: number;
   };
+  isSelectDisabled?: boolean;
 }
 
 const formatOptions = {
@@ -48,6 +49,7 @@ export function ConversionOptions({
   type,
   onOptionsChange,
   defaultValues,
+  isSelectDisabled,
 }: ConversionOptionsProps) {
   const getQualityInfo = (quality: number) => {
     if (quality >= 90)
@@ -110,6 +112,7 @@ export function ConversionOptions({
       <Select
         defaultValue={defaultValues.format || defaultFormats[type]}
         onValueChange={(value) => onOptionsChange({ format: value })}
+        disabled={isSelectDisabled}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a format" />
