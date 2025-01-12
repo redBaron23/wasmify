@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "wasm-build": "cd rust && wasm-pack build --target web --out-dir ../src/wasm",
-    "vercel-build": "pnpm run wasm-build && next build",
+    "vercel-build": "next build",
     "dev:next": "pnpm run wasm-build && next dev",
     "dev": "next dev"
   },
