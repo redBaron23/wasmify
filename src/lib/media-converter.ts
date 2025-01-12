@@ -1,13 +1,19 @@
-import init, { MediaConverter } from "@/wasm/media_converter";
+import wasmInit, { MediaConverter } from "@/wasm/media_converter";
 
-let wasmModule: Awaited<ReturnType<typeof init>>;
+const wasmURL = new URL("@/wasm/media_converter_bg.wasm", import.meta.url);
+
+let wasmModule: Awaited<ReturnType<typeof wasmInit>>;
 
 export async function initWasm() {
-  if (!wasmModule) {
-    wasmModule = await init();
+  try {
+    if (!wasmModule) {
+      wasmModule = await wasmInit(wasmURL);
+    }
+    return wasmModule;
+  } catch (error) {
+    console.error("Error initializing WASM:", error);
+    throw new Error("Failed to initialize WASM module");
   }
-
-  return wasmModule;
 }
 
 export type ConversionSettings = {

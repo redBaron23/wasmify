@@ -1,17 +1,29 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.experiments = {
-      ...config.experiments,
       asyncWebAssembly: true,
+      layers: true,
     };
 
-    // Rule for WASM files
     config.module.rules.push({
       test: /\.wasm$/,
-      type: "webassembly/async",
+      type: "asset/resource",
+      generator: {
+        filename: "static/wasm/[hash][ext]",
+      },
     });
+
+    // Necesario para manejar las URLs en desarrollo
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        url: false,
+      };
+    }
 
     return config;
   },
