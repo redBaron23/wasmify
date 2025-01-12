@@ -3,7 +3,7 @@
 import { ConversionZone } from "@/components/converter/convertion-zone";
 import { Button } from "@/components/ui/button";
 import { Github, Zap, Shield, FileType, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const features = [
   {
