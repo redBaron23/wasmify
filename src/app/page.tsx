@@ -85,14 +85,13 @@ export default function Home() {
             >
               <a href="#conversion-zone">Get Started</a>
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              disabled
-              className="pointer-events-none opacity-50"
-            >
-              <a href="#" rel="noopener" className="group">
+            <Button variant="outline" size="lg" asChild>
+              <a
+                href="https://github.com/redBaron23/wasmify"
+                target="_blank"
+                rel="noopener"
+                className="group"
+              >
                 <Github className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
                 Star on GitHub
               </a>
