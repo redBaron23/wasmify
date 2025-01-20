@@ -5,8 +5,7 @@
   "scripts": {
     "wasm-build": "cd rust && wasm-pack build --target web --out-dir ../src/wasm",
     "vercel-build": "next build",
-    "dev:next": "pnpm run wasm-build && next dev",
-    "dev": "next dev"
+    "dev": "pnpm run wasm-build && next dev"
   },
   "dependencies": {
     "@ffmpeg/util": "^0.12.2",

@@ -168,7 +168,7 @@ export function ConversionZone() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 p-4">
+    <div id="conversion-zone" className="max-w-4xl mx-auto space-y-6 p-4">
       <AnimatePresence mode="wait">
         {!detectedFile ? (
           <motion.div

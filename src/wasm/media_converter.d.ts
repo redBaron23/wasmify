@@ -6,7 +6,6 @@ export class MediaConverter {
   constructor(options: any);
   set_progress_callback(callback: Function): void;
   convert_image(input_data: Uint8Array): Uint8Array;
-  convert_video(input_data: Uint8Array): Uint8Array;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -18,7 +17,6 @@ export interface InitOutput {
   readonly mediaconverter_new: (a: any) => [number, number, number];
   readonly mediaconverter_set_progress_callback: (a: number, b: any) => void;
   readonly mediaconverter_convert_image: (a: number, b: number, c: number) => [number, number, number, number];
-  readonly mediaconverter_convert_video: (a: number, b: number, c: number) => [number, number, number, number];
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __externref_table_alloc: () => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
