@@ -39,12 +39,9 @@ export async function convertMedia(
     onProgress(progress);
   });
 
-  const isVideo = file.type.startsWith("video/");
-  const result = isVideo
-    ? await converter.convert_video(inputData)
-    : await converter.convert_image(inputData);
+  const result = converter.convert_image(inputData);
 
   return new Blob([result], {
-    type: `${isVideo ? "video" : "image"}/${options.format}`,
+    type: ` image/${options.format}`,
   });
 }
