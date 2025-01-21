@@ -4,6 +4,7 @@ import { ConversionZone } from "@/components/converter/convertion-zone";
 import { Button } from "@/components/ui/button";
 import { Github, Zap, Shield, FileType, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const features = [
   {
@@ -65,8 +66,14 @@ export default function Home() {
           className="text-center space-y-8"
         >
           <div className="flex justify-center mb-6">
-            <div className="p-2 rounded-xl bg-white shadow-lg shadow-blue-500/20">
-              <Sparkles className="w-8 h-8 text-blue-500" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-blue-500/20">
+              <Image
+                src="/icon.png"
+                alt="Wasmify logo"
+                width={28}
+                height={28}
+                className="w-7 h-7"
+              />
             </div>
           </div>
 

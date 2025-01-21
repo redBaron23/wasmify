@@ -17,22 +17,6 @@ export const metadata: Metadata = {
   title: "Wasmify - WebAssembly Image Processing",
   description:
     "Fast, secure, and efficient image conversion powered by Rust and WebAssembly",
-  icons: {
-    icon: [
-      {
-        url: "/icon/icon.ico",
-        sizes: "any",
-      },
-    ],
-    apple: [
-      {
-        url: "/icon/apple-touch-icon.png",
-        sizes: "180x180",
-      },
-    ],
-    shortcut: ["/icon/favicon.ico"],
-  },
-  manifest: "/icon/site.webmanifest",
 };
 
 export default function RootLayout({
