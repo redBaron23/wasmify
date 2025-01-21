@@ -22,6 +22,7 @@ A modern web application that leverages WebAssembly for high-performance image p
 ## Prerequisites
 
 Make sure you have the following installed:
+
 - Node.js (Latest LTS version recommended)
 - pnpm
 - Rust and wasm-pack (for WebAssembly compilation)
@@ -29,6 +30,7 @@ Make sure you have the following installed:
 ## Getting Started
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd wasmify
@@ -45,7 +47,9 @@ pnpm install
 ```bash
 pnpm dev
 ```
+
 This will:
+
 - Build the Rust code to WebAssembly
 - Start the Next.js development server
 
@@ -60,10 +64,6 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-[License Type] - See LICENSE file for details
 
 ## Deployment
 
