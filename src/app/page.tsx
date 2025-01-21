@@ -148,7 +148,15 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <p className="text-center text-gray-600">
             Built with <span className="text-red-500">❤️</span> using Next.js,
-            Rust, and WebAssembly
+            Rust, and WebAssembly by{" "}
+            <a
+              href="https://patriciotoledo.ar"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 font-medium hover:from-blue-700 hover:to-purple-700 transition-colors duration-300"
+            >
+              @redBaron23
+            </a>
           </p>
         </div>
       </footer>
