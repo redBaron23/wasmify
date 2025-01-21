@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wasmify - WebAssembly Image Processing
+
+A modern web application that leverages WebAssembly for high-performance image processing, built with Next.js 15 and Rust.
+
+## Features
+
+- Browser-based image processing using WebAssembly
+- Modern UI built with shadcn/ui components
+- Dark/Light theme support
+- Drag and drop file uploads
+- Real-time image processing preview
+
+## Tech Stack
+
+- Next.js 15
+- Rust (WebAssembly)
+- shadcn/ui components
+- TailwindCSS
+- TypeScript
+- Framer Motion for animations
+
+## Prerequisites
+
+Make sure you have the following installed:
+- Node.js (Latest LTS version recommended)
+- pnpm
+- Rust and wasm-pack (for WebAssembly compilation)
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd wasmify
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Build the WebAssembly module and start the development server:
 
-## Learn More
+```bash
+pnpm dev
+```
+This will:
+- Build the Rust code to WebAssembly
+- Start the Next.js development server
 
-To learn more about Next.js, take a look at the following resources:
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `pnpm dev` - Build WebAssembly and start development server
+- `pnpm wasm-build` - Build WebAssembly module only
+- `pnpm vercel-build` - Build for production deployment
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[License Type] - See LICENSE file for details
+
+## Deployment
+
+The application is configured for deployment on Vercel. You can deploy your own instance with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/redBaron23/wasmify)
