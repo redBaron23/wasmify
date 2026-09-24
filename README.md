@@ -1,19 +1,24 @@
-# Wasmify - WebAssembly Image Processing
+# Wasmify - WebAssembly Image & Video Processing
 
-A modern web application that leverages WebAssembly for high-performance image processing, built with Next.js 15 and Rust.
+A modern web application that leverages WebAssembly for high-performance image and video processing, built with Next.js 15, Rust, and ffmpeg.wasm.
 
 ## Features
 
-- Browser-based image processing using WebAssembly
+- Browser-based image processing using WebAssembly (PNG, JPEG, WebP, GIF)
+- HEIC/HEIF input support — convert iPhone photos straight in the browser
+- Browser-based video conversion (MP4, WebM, MOV) via ffmpeg.wasm, with
+  control over resolution, frame rate, quality, and audio
 - Modern UI built with shadcn/ui components
 - Dark/Light theme support
 - Drag and drop file uploads
-- Real-time image processing preview
+- Real-time conversion progress
 
 ## Tech Stack
 
 - Next.js 15
-- Rust (WebAssembly)
+- Rust (WebAssembly) for image conversion
+- ffmpeg.wasm for video conversion
+- heic2any for HEIC/HEIF decoding
 - shadcn/ui components
 - TailwindCSS
 - TypeScript

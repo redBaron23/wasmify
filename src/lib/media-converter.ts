@@ -1,4 +1,5 @@
 import wasmInit, { MediaConverter } from "@/wasm/media_converter";
+import { decodeHeicToJpeg, isHeicFile } from "./heic-converter";
 
 const wasmURL = new URL("@/wasm/media_converter_bg.wasm", import.meta.url);
 
@@ -24,14 +25,18 @@ export type ConversionSettings = {
   fps?: number;
 };
 
-export async function convertMedia(
+export async function convertImage(
   file: File,
   options: ConversionSettings,
   onProgress: (progress: number) => void
 ): Promise<Blob> {
   await initWasm();
 
-  const arrayBuffer = await file.arrayBuffer();
+  // HEIC/HEIF can't be decoded by the Rust `image` crate, so it's decoded
+  // to JPEG in the browser first, then run through the normal pipeline.
+  const sourceFile = isHeicFile(file) ? await decodeHeicToJpeg(file) : file;
+
+  const arrayBuffer = await sourceFile.arrayBuffer();
   const inputData = new Uint8Array(arrayBuffer);
 
   const converter = new MediaConverter(options);
@@ -42,6 +47,6 @@ export async function convertMedia(
   const result = converter.convert_image(inputData);
 
   return new Blob([result], {
-    type: ` image/${options.format}`,
+    type: `image/${options.format}`,
   });
 }
