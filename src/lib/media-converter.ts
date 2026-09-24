@@ -34,7 +34,9 @@ export async function convertImage(
 
   // HEIC/HEIF can't be decoded by the Rust `image` crate, so it's decoded
   // to JPEG in the browser first, then run through the normal pipeline.
-  const sourceFile = isHeicFile(file) ? await decodeHeicToJpeg(file) : file;
+  const sourceFile = (await isHeicFile(file))
+    ? await decodeHeicToJpeg(file)
+    : file;
 
   const arrayBuffer = await sourceFile.arrayBuffer();
   const inputData = new Uint8Array(arrayBuffer);

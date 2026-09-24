@@ -48,7 +48,6 @@ const SUPPORTED_EXTENSIONS = [
 ];
 
 function isSupportedFile(file: File): boolean {
-  if (isHeicFile(file)) return true;
   if (IMAGE_MIME_TYPES.includes(file.type)) return true;
   if (VIDEO_MIME_TYPES.includes(file.type)) return true;
   const ext = file.name.split(".").pop()?.toLowerCase();
@@ -120,7 +119,7 @@ export function ConversionZone() {
     const type: "video" | "image" = file.type.startsWith("video/")
       ? "video"
       : "image";
-    const heic = isHeicFile(file);
+    const heic = await isHeicFile(file);
 
     setStatus("idle");
     setProgress(0);

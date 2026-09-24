@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "wasm-build": "cd rust && wasm-pack build --target web --out-dir ../src/wasm",
-    "vercel-build": "next build",
-    "dev": "pnpm run wasm-build && next dev"
+    "ffmpeg-setup": "node scripts/setup-ffmpeg-core.mjs",
+    "vercel-build": "pnpm run ffmpeg-setup && next build",
+    "dev": "pnpm run wasm-build && pnpm run ffmpeg-setup && next dev"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
@@ -21,7 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
-    "heic2any": "^0.0.4",
+    "heic-to": "^1.5.2",
     "lucide-react": "^0.469.0",
     "next": "15.1.11",
     "next-themes": "^0.4.4",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@ffmpeg/core": "^0.12.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

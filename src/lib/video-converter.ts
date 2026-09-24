@@ -1,7 +1,9 @@
 import type { FFmpeg } from "@ffmpeg/ffmpeg";
 
-const CORE_VERSION = "0.12.6";
-const CORE_BASE_URL = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
+// Served from our own origin (copied from @ffmpeg/core by the `ffmpeg-setup`
+// script) rather than a CDN, so conversion keeps working behind firewalls
+// that block unpkg/jsdelivr and nothing is fetched from a third party.
+const CORE_BASE_URL = "/ffmpeg";
 
 let ffmpegInstance: FFmpeg | null = null;
 let loadPromise: Promise<FFmpeg> | null = null;
@@ -31,6 +33,10 @@ export async function initFFmpeg(
         `${CORE_BASE_URL}/ffmpeg-core.wasm`,
         "application/wasm"
       ),
+      // An absolute URL here makes @ffmpeg/ffmpeg spawn the worker from our
+      // own static copy instead of letting webpack bundle its default
+      // "./worker.js", which is what triggers the blob-URL import bug above.
+      classWorkerURL: `${window.location.origin}${CORE_BASE_URL}/worker.js`,
     });
 
     ffmpegInstance = ffmpeg;

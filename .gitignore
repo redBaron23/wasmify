@@ -43,3 +43,6 @@ next-env.d.ts
 # wasm
 /rust/target
 #/src/wasm
+
+# ffmpeg core, copied from node_modules at build time (see `ffmpeg-setup` script)
+/public/ffmpeg
