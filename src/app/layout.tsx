@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,11 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wasmify - WebAssembly Image Processing",
+  title: "Wasmify - Image & Video Conversion with WebAssembly",
   description:
-    "Fast, secure, and efficient image conversion powered by Rust and WebAssembly. Convert images locally in your browser with near-native performance.",
+    "Fast, secure, and efficient image and video conversion powered by Rust and WebAssembly. Convert images (including HEIC) and videos locally in your browser with near-native performance.",
   keywords:
-    "WebAssembly, Rust, image processing, image conversion, web app, browser-based, privacy-first",
+    "WebAssembly, Rust, image processing, image conversion, video conversion, HEIC converter, web app, browser-based, privacy-first",
   robots: {
     index: true,
     follow: true,
@@ -31,12 +32,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

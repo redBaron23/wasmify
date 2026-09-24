@@ -7,36 +7,60 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   ImageIcon,
+  Film,
   ArrowRight,
   RotateCcw,
   Download,
   Settings2,
+  Loader2,
 } from "lucide-react";
 import { ConversionOptions } from "./conversion-options";
 import { ProgressIndicator } from "./progress-indicator";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { ConversionStatus } from "@/types";
-import { convertMedia } from "@/lib/media-converter";
+import { convertImage } from "@/lib/media-converter";
+import { convertVideo, VideoConversionSettings } from "@/lib/video-converter";
+import { decodeHeicToJpeg, isHeicFile } from "@/lib/heic-converter";
 import Image from "next/image";
 
-const SUPPORTED_FORMATS = [
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/gif",
+const IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const VIDEO_MIME_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/x-matroska",
+  "video/x-msvideo",
+];
+const SUPPORTED_EXTENSIONS = [
+  "png",
+  "jpg",
+  "jpeg",
+  "webp",
+  "gif",
+  "heic",
+  "heif",
+  "mp4",
+  "webm",
+  "mov",
+  "mkv",
+  "avi",
 ];
 
-interface DetectedFile {
-  file: File;
-  type: "video" | "image";
-  preview?: string;
+function isSupportedFile(file: File): boolean {
+  if (isHeicFile(file)) return true;
+  if (IMAGE_MIME_TYPES.includes(file.type)) return true;
+  if (VIDEO_MIME_TYPES.includes(file.type)) return true;
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  return !!ext && SUPPORTED_EXTENSIONS.includes(ext);
 }
 
 interface DetectedFile {
   file: File;
   type: "video" | "image";
   preview?: string;
+  isHeic?: boolean;
+  previewLoading?: boolean;
 }
 
 interface ConversionSettings {
@@ -46,6 +70,19 @@ interface ConversionSettings {
   resolution?: string;
   fps?: number;
 }
+
+const DEFAULT_IMAGE_SETTINGS: ConversionSettings = {
+  format: "webp",
+  quality: 80,
+};
+
+const DEFAULT_VIDEO_SETTINGS: ConversionSettings = {
+  format: "mp4",
+  quality: 75,
+  preserveAudio: true,
+  resolution: "1080p",
+  fps: 30,
+};
 
 const previewVariants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -66,43 +103,78 @@ export function ConversionZone() {
   const [progress, setProgress] = useState(0);
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
   const [conversionSettings, setConversionSettings] =
-    useState<ConversionSettings>({
-      format: "jpg",
-      quality: 80,
-    });
+    useState<ConversionSettings>(DEFAULT_IMAGE_SETTINGS);
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
-    if (!SUPPORTED_FORMATS.includes(file.type)) {
+    if (!isSupportedFile(file)) {
       toast({
         title: "Unsupported File Type",
-        description: "Please select a PNG, JPEG, WebP, or GIF file.",
+        description:
+          "Please select a PNG, JPEG, WebP, GIF, HEIC image, or an MP4/WebM/MOV video.",
         variant: "destructive",
       });
       return;
     }
 
-    const preview = URL.createObjectURL(file);
-    setDetectedFile({ file, type: "image", preview });
+    const type: "video" | "image" = file.type.startsWith("video/")
+      ? "video"
+      : "image";
+    const heic = isHeicFile(file);
+
     setStatus("idle");
     setProgress(0);
     setConvertedUrl(null);
+    setConversionSettings(
+      type === "video" ? DEFAULT_VIDEO_SETTINGS : DEFAULT_IMAGE_SETTINGS
+    );
+
+    if (heic) {
+      // Browsers can't render HEIC directly, so decode it just for the preview.
+      setDetectedFile({ file, type: "image", isHeic: true, previewLoading: true });
+      try {
+        const jpeg = await decodeHeicToJpeg(file);
+        const preview = URL.createObjectURL(jpeg);
+        setDetectedFile((prev) =>
+          prev?.file === file ? { ...prev, preview, previewLoading: false } : prev
+        );
+      } catch (error) {
+        console.error("HEIC preview error:", error);
+        setDetectedFile((prev) =>
+          prev?.file === file ? { ...prev, previewLoading: false } : prev
+        );
+      }
+      return;
+    }
+
+    const preview = URL.createObjectURL(file);
+    setDetectedFile({ file, type, preview });
   };
 
   const handleConversion = async () => {
-    setStatus("converting");
+    if (!detectedFile) return;
+
+    setStatus("preparing");
     setConvertedUrl(null);
 
     try {
-      if (!detectedFile) return;
-
-      const convertedBlob = await convertMedia(
-        detectedFile.file,
-        conversionSettings,
-        (progress: number) => {
-          setProgress(Math.round(progress));
+      let switchedToConverting = false;
+      const onProgress = (value: number) => {
+        if (!switchedToConverting) {
+          switchedToConverting = true;
+          setStatus("converting");
         }
-      );
+        setProgress(Math.round(value));
+      };
+
+      const convertedBlob =
+        detectedFile.type === "video"
+          ? await convertVideo(
+              detectedFile.file,
+              conversionSettings as VideoConversionSettings,
+              onProgress
+            )
+          : await convertImage(detectedFile.file, conversionSettings, onProgress);
 
       const url = URL.createObjectURL(convertedBlob);
       setConvertedUrl(url);
@@ -167,11 +239,19 @@ export function ConversionZone() {
     }
   };
 
+  const TypeIcon = detectedFile?.type === "video" ? Film : ImageIcon;
+  const typeLabel = detectedFile?.isHeic
+    ? "HEIC"
+    : detectedFile?.type === "video"
+    ? "Video"
+    : "Image";
+
   return (
     <div id="conversion-zone" className="max-w-4xl mx-auto space-y-6 p-4">
       <AnimatePresence mode="wait">
         {!detectedFile ? (
           <motion.div
+            key="dropzone"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -184,11 +264,18 @@ export function ConversionZone() {
                 "image/jpeg": [],
                 "image/webp": [],
                 "image/gif": [],
+                "image/heic": [".heic"],
+                "image/heif": [".heif"],
+                "video/mp4": [".mp4"],
+                "video/webm": [".webm"],
+                "video/quicktime": [".mov"],
+                "video/x-matroska": [".mkv"],
               }}
             />
           </motion.div>
         ) : (
           <motion.div
+            key="settings"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
@@ -202,19 +289,37 @@ export function ConversionZone() {
                   initial="hidden"
                   animate="show"
                 >
-                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg overflow-hidden shadow-inner relative">
-                    <Image
-                      src={detectedFile.preview || ""}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                      unoptimized // Since we're using blob URLs
-                      priority // Important for LCP
-                    />
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-lg overflow-hidden shadow-inner relative flex items-center justify-center">
+                    {detectedFile.type === "video" && detectedFile.preview ? (
+                      // eslint-disable-next-line jsx-a11y/media-has-caption
+                      <video
+                        src={detectedFile.preview}
+                        controls
+                        muted
+                        playsInline
+                        className="w-full h-full object-contain bg-black"
+                      />
+                    ) : detectedFile.previewLoading ? (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        <span className="text-sm">Decoding HEIC preview…</span>
+                      </div>
+                    ) : detectedFile.preview ? (
+                      <Image
+                        src={detectedFile.preview}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                        unoptimized // Since we're using blob URLs
+                        priority // Important for LCP
+                      />
+                    ) : (
+                      <TypeIcon className="w-10 h-10 text-muted-foreground" />
+                    )}
                   </div>
                   <div className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
                     <div className="p-2 bg-purple-50 dark:bg-purple-900/50 rounded-lg">
-                      <ImageIcon className="w-5 h-5 text-purple-500" />
+                      <TypeIcon className="w-5 h-5 text-purple-500" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate text-sm sm:text-base">
@@ -225,7 +330,7 @@ export function ConversionZone() {
                           variant="secondary"
                           className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs sm:text-sm"
                         >
-                          Image
+                          {typeLabel}
                         </Badge>
                         <span className="text-xs sm:text-sm text-muted-foreground">
                           {(detectedFile.file.size / 1024 / 1024).toFixed(2)}MB
@@ -243,7 +348,7 @@ export function ConversionZone() {
                   </div>
 
                   <ConversionOptions
-                    type="image"
+                    type={detectedFile.type}
                     onOptionsChange={(newSettings) =>
                       setConversionSettings({
                         ...conversionSettings,
@@ -285,7 +390,11 @@ export function ConversionZone() {
                       <>
                         <Button
                           onClick={handleConversion}
-                          disabled={status === "converting"}
+                          disabled={
+                            status === "converting" ||
+                            status === "preparing" ||
+                            detectedFile.previewLoading
+                          }
                           className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 w-full sm:w-auto"
                         >
                           Convert Now

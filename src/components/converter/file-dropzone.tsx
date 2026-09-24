@@ -2,7 +2,7 @@
 
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, ImageIcon, Film } from "lucide-react";
 
 export function FileDropzone({
   onFileSelect,
@@ -21,21 +21,34 @@ export function FileDropzone({
     <div
       {...getRootProps()}
       className={cn(
-        "border-2 border-dashed rounded-lg p-12 transition-colors text-center",
+        "group cursor-pointer border-2 border-dashed rounded-2xl p-10 sm:p-16 transition-all text-center bg-white/60 dark:bg-gray-900/40 backdrop-blur-sm",
         isDragActive
-          ? "border-primary bg-primary/5"
+          ? "border-primary bg-primary/5 scale-[1.01]"
           : "border-muted-foreground/25",
         "hover:border-primary hover:bg-primary/5"
       )}
     >
       <input {...getInputProps()} />
-      <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
-      <p className="mt-2 text-muted-foreground">
-        Drop your image file here, or click to select
+      <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+        <UploadCloud className="h-8 w-8 text-white" />
+      </div>
+      <p className="mt-5 text-base sm:text-lg font-medium">
+        {isDragActive ? "Drop it right here" : "Drag & drop a file, or click to browse"}
       </p>
-      <p className="text-sm text-muted-foreground/75 mt-1">
-        Supports JPG, PNG, WebP, and GIF
+      <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto">
+        One file at a time, converted entirely on your device — nothing is
+        uploaded anywhere.
       </p>
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <ImageIcon className="w-3.5 h-3.5" />
+          JPG · PNG · WebP · GIF · HEIC
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Film className="w-3.5 h-3.5" />
+          MP4 · WebM · MOV
+        </span>
+      </div>
     </div>
   );
 }
